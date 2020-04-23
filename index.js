@@ -1,4 +1,6 @@
-const { ApolloServer, gql } = require('apollo-server');
+const { ApolloServer, gql } = require("apollo-server-express");
+
+const express = require("express");
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
@@ -22,30 +24,37 @@ const typeDefs = gql`
 `;
 
 const books = [
-    {
-      title: 'Harry Potter and the Chamber of Secrets',
-      author: 'J.K. Rowling',
-    },
-    {
-      title: 'Jurassic Park',
-      author: 'Michael Crichton',
-    },
-  ];
-
+  {
+    title: "Harry Potter and the Chamber of Secrets",
+    author: "J.K. Rowling",
+  },
+  {
+    title: "Jurassic Park",
+    author: "Michael Crichton",
+  },
+];
 
 // Resolvers define the technique for fetching the types defined in the
 // schema. This resolver retrieves books from the "books" array above.
 const resolvers = {
-    Query: {
-      books: () => books,
-    },
-  };
+  Query: {
+    books: () => books,
+  },
+};
 
 // The ApolloServer constructor requires two parameters: your schema
 // definition and your set of resolvers.
 const server = new ApolloServer({ typeDefs, resolvers });
 
+const app = express();
+
+app.use(express.json());
+
+app.get("/", (req, res) => res.send("<h1> Hello </h1>"));
+
+server.applyMiddleware({ app });
+
 // The `listen` method launches a web server.
-server.listen().then(({ url }) => {
-  console.log(`🚀  Server ready at ${url}`);
-});
+app.listen({ port: 4000 }, () =>
+  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
+);
